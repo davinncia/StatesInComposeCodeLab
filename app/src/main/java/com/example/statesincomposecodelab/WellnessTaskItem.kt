@@ -19,11 +19,18 @@ import androidx.compose.runtime.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.saveable.rememberSaveable
 
-data class WellnessTask(val id: Int, val label: String)
+class WellnessTask(
+    val id: Int,
+    val label: String,
+    initialChecked: Boolean = false
+) {
+    var checked by mutableStateOf(initialChecked)
+}
 
 @Composable
 fun WellnessTasksList(
     list: List<WellnessTask>,
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
     onCloseTask: (WellnessTask) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -31,23 +38,14 @@ fun WellnessTasksList(
         modifier = modifier
     ) {
         items(list, key = {task -> task.id}) { task ->
-            WellnessTaskItem(taskName = task.label, onClose = { onCloseTask(task) })
+            WellnessTaskItem(
+                taskName = task.label,
+                checked = task.checked,
+                onCheckedChange = { checked -> onCheckedTask(task, checked) },
+                onClose = { onCloseTask(task) }
+            )
         }
     }
-}
-
-// Stateful
-@Composable
-fun WellnessTaskItem(taskName: String, onClose: () -> Unit, modifier: Modifier = Modifier) {
-    var checkedState by rememberSaveable { mutableStateOf(false) }
-
-    WellnessTaskItem(
-        taskName = taskName,
-        checked = checkedState,
-        onCheckedChange = { newValue -> checkedState = newValue },
-        onClose = { onClose.invoke() }, // we will implement this later!
-        modifier = modifier,
-    )
 }
 
 // Stateless
